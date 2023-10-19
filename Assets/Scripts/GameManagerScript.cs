@@ -31,6 +31,7 @@ public class GameManagerScript : MonoBehaviour
     [SerializeField] private GameObject map1;
     [SerializeField] private GameObject map2;
     [SerializeField] private GameObject map3;
+    [SerializeField] private GameObject map4;
 
     [Header("Screens")]
     [SerializeField] private GameObject gameOverScreen;
@@ -52,18 +53,31 @@ public class GameManagerScript : MonoBehaviour
             case 1:
                 map2.SetActive(false);
                 map3.SetActive(false);
+                map4.SetActive(false);
                 map1.SetActive(true);
+                MenuScript.lastPlayedMap = 1;
                 break;
 
             case 2:
                 map1.SetActive(false);
                 map3.SetActive(false);
+                map4.SetActive(false);
                 map2.SetActive(true);
+                MenuScript.lastPlayedMap = 2;
                 break;
             case 3:
                 map1.SetActive(false);
                 map2.SetActive(false);
+                map4.SetActive(false);
                 map3.SetActive(true);
+                MenuScript.lastPlayedMap = 3;
+                break;
+            case 4:
+                map1.SetActive(false);
+                map2.SetActive(false);
+                map3.SetActive(false);
+                map4.SetActive(true);
+                MenuScript.lastPlayedMap = 4;
                 break;
         }
 
@@ -96,13 +110,13 @@ public class GameManagerScript : MonoBehaviour
                 if (remainingTime <= 5)
                 {
                     countdownTimerText.faceColor = new Color32(255, 51, 51, 255);
-                }
 
-                if (remainingTime <= 0)
-                {
-                    remainingTime = 0;
-                    countdownTimerText.text = remainingTime.ToString("0") + "s";
-                    timerIsRunning = false;
+                    if (remainingTime <= 0)
+                    {
+                        remainingTime = 0;
+                        countdownTimerText.text = remainingTime.ToString("0") + "s";
+                        timerIsRunning = false;
+                    }
                 }
 
                 countdownTimerText.text = remainingTime.ToString("0") + "s";
@@ -113,13 +127,9 @@ public class GameManagerScript : MonoBehaviour
                 EndGame();
             }
         }
-        else
-        {
-            return;
-        }
         
         // Check for pause
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
         {
             if (gamePlaying == false)
             {
@@ -129,6 +139,16 @@ public class GameManagerScript : MonoBehaviour
             {
                 PauseGame();
             }
+        }
+
+        // Game over screen controls
+        if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space)) && gameOverScreen.activeSelf == true)
+        {
+            RestartGame();
+        }
+        if (Input.GetKeyDown(KeyCode.Escape) && gameOverScreen.activeSelf == true)
+        {
+            LoadMenuScreen();
         }
     }
 
@@ -155,8 +175,8 @@ public class GameManagerScript : MonoBehaviour
     // Resume the game
     public void ResumeGame()
     {
-        Time.timeScale = 1f;
         pauseScreen.SetActive(false);
+        Time.timeScale = 1f;
         gamePlaying = true;
     }
 
@@ -187,7 +207,20 @@ public class GameManagerScript : MonoBehaviour
     // Restart game
     public void RestartGame()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (MenuScript.randomMapActive)
+        {
+            do
+            {
+                MenuScript.ChooseRandomMap();
+            }
+            while (MenuScript.chosenMapIndex == MenuScript.lastPlayedMap);
+
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
 
     // Load the menu scene

@@ -22,6 +22,8 @@ public class MenuScript : MonoBehaviour
     [Header("Other")]
     public static float timerDuration;
     public static int chosenMapIndex;
+    public static bool randomMapActive = false;
+    public static int lastPlayedMap;
 
     void Awake()
     {
@@ -37,7 +39,67 @@ public class MenuScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        // Open different screens using keyboard
+        if (Input.GetKeyDown(KeyCode.Return) && defaultUI.activeSelf == true)
+        {
+            OpenChooseMapScreen();
+        }
+        if (Input.GetKeyDown(KeyCode.C) && defaultUI.activeSelf == true)
+        {
+            OpenSettings();
+        }
+        if (Input.GetKeyDown(KeyCode.I) && defaultUI.activeSelf == true)
+        {
+            OpenHowToPlay();
+        }
+
+        // Close different screens using keyboard
+        if (Input.GetKeyDown(KeyCode.Escape) && chooseMapUI.activeSelf == true)
+        {
+            CloseChooseMapScreen();
+        }
+        if (Input.GetKeyDown(KeyCode.Return) && tutorialUI.activeSelf == true)
+        {
+            StartGame();
+        }
+        if (Input.GetKeyDown(KeyCode.Escape) && settingsUI.activeSelf == true)
+        {
+            CloseSettings();
+        }
+        if (Input.GetKeyDown(KeyCode.Return) && settingsUI.activeSelf == true)
+        {
+            SaveSettings();
+        }
+        if (Input.GetKeyDown(KeyCode.Escape) && howToPlayUI.activeSelf == true)
+        {
+            CloseHowToPlay();
+        }
+        if (Input.GetKeyDown(KeyCode.Escape) && tutorialUI.activeSelf == true)
+        {
+            CloseTutorial();
+        }
+
+        // Load different maps using keyboard
+        if ((Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) && chooseMapUI.activeSelf == true)
+        {
+            LoadMap1();
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) && chooseMapUI.activeSelf == true)
+        {
+            LoadMap2();
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3)) && chooseMapUI.activeSelf == true)
+        {
+            LoadMap3();
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4)) && chooseMapUI.activeSelf == true)
+        {
+            LoadMap4();
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5)) && chooseMapUI.activeSelf == true)
+        {
+            LoadRandomMap();
+        }
     }
 
     // ============================ MY METHODS ============================
@@ -54,13 +116,13 @@ public class MenuScript : MonoBehaviour
         switch (index)
         {
             case 0:
-                timerDuration = 120f;
+                timerDuration = 60f;
                 break;
             case 1:
-                timerDuration = 180f;
+                timerDuration = 120f;
                 break;
             case 2:
-                timerDuration = 60f;
+                timerDuration = 180f;
                 break;
         }
     }
@@ -74,16 +136,18 @@ public class MenuScript : MonoBehaviour
         // Timer duration
         if(timerDurationDropdown.value == 0)
         {
-            PlayerPrefs.SetFloat("TimerDuration", 120f);
+            PlayerPrefs.SetFloat("TimerDuration", 60f);
         } 
         else if(timerDurationDropdown.value == 1)
         {
-            PlayerPrefs.SetFloat("TimerDuration", 180f);
+            PlayerPrefs.SetFloat("TimerDuration", 120f);
         }
         else
         {
-            PlayerPrefs.SetFloat("TimerDuration", 60f);
+            PlayerPrefs.SetFloat("TimerDuration", 180f);
         }
+
+        CloseSettings();
     }
 
     // Load user's settings from PlayerPrefs
@@ -108,20 +172,20 @@ public class MenuScript : MonoBehaviour
 
             switch (PlayerPrefs.GetFloat("TimerDuration"))
             {
-                case 120f:
+                case 60f:
                     timerDurationDropdown.value = 0;
                     break;
-                case 180f:
+                case 120f:
                     timerDurationDropdown.value = 1;
                     break;
-                case 60f:
+                case 180f:
                     timerDurationDropdown.value = 2;
                     break;
             }
         }
         else
         {
-            timerDuration = 120f;
+            timerDuration = 60f;
             timerDurationDropdown.value = 0;
         }
     }
@@ -181,26 +245,42 @@ public class MenuScript : MonoBehaviour
     public void LoadMap1()
     {
         chosenMapIndex = 1;
+        randomMapActive = false;
         StartGame();
     }
 
     public void LoadMap2()
     {
         chosenMapIndex = 2;
+        randomMapActive = false;
         StartGame();
     }
 
     public void LoadMap3()
     {
         chosenMapIndex = 3;
+        randomMapActive = false;
+        StartGame();
+    }
+
+    public void LoadMap4()
+    {
+        chosenMapIndex = 4;
+        randomMapActive = false;
         StartGame();
     }
 
     public void LoadRandomMap()
     {
-        chosenMapIndex = Random.Range(1, 4);
-        Debug.Log("Map " + chosenMapIndex + " was randomly chosen.");
+        randomMapActive = true;
+        ChooseRandomMap();
         StartGame();
+    }
+
+    public static void ChooseRandomMap()
+    {
+        chosenMapIndex = Random.Range(1, 5);
+        Debug.Log("Map " + chosenMapIndex + " was randomly chosen.");
     }
 
     // Open "Choose a Map" screen when user clicks the play button on Menu Scene's homepage
